@@ -1,0 +1,79 @@
+import requests
+import pandas as pd
+from datetime import datetime
+
+
+# we use this function to convert responses to dataframes
+def df_from_response(res):
+    # initialize temp dataframe for batch of data in response
+    df = pd.DataFrame()
+
+    # loop through each post pulled from res and append to df
+    for post in res.json()['data']['children']:
+        df = df.append({
+            'subreddit': post['data']['subreddit'],
+            'title': post['data']['title'],
+            'selftext': post['data']['selftext'],
+            'upvote_ratio': post['data']['upvote_ratio'],
+            'ups': post['data']['ups'],
+            'downs': post['data']['downs'],
+            'score': post['data']['score'],
+            'link_flair_css_class': post['data']['link_flair_css_class'],
+            'created_utc': datetime.fromtimestamp(post['data']['created_utc']).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'id': post['data']['id'],
+            'kind': post['kind']
+        }, ignore_index=True)
+
+    return df
+
+
+# Authenticate API
+client_id = 'bwrHj-qYKXjUsOFvQniLHg'
+secret = 'tc25v_Z_6z1Yq2N5T6yikt4R0ctoIg'
+auth = requests.auth.HTTPBasicAuth(client_id, secret)
+
+with open('pw.txt', 'r') as f:
+    pw = f.read()
+
+data = {
+    'grant_type': 'password',
+    'username': ' nlp42069',
+    'password': pw
+}
+
+headers = {'User-Agent': 'MyAPI/0.0.1'}
+
+# send req for Oauth
+res = requests.post('https://www.reddit.com/api/v1/access_token',
+                    auth=auth, data=data, headers=headers)
+# extract token from response + format
+token = f"bearer {res.json()['access_token']}"
+
+# update the API headers with authentication or try line 26
+headers = {**headers, **{'Authorization': token}}
+
+# initialize dataframe and parameters for pulling data in loop
+data = pd.DataFrame()
+params = {'limit': 100}
+
+# engage LOOP
+for i in range(1):
+    # make request
+    res = requests.get("https://oauth.reddit.com/r/UCSC/new",
+                       headers=headers,
+                       params=params)
+
+    # get dataframe from response
+    new_df = df_from_response(res)
+    # take the final row (the oldest entry)
+    row = new_df.iloc[len(new_df) - 1]
+    # create fullname
+    fullname = row['kind'] + '_' + row['id']
+    # add/update fullname in params
+    params['after'] = fullname
+
+    # append new_df to data
+    data = data.append(new_df, ignore_index=True)
+
+# attempt to add to a file!!!
+data.to_csv('ucsc_newest_reddit_post.csv')

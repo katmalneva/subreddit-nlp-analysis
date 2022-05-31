@@ -4,26 +4,40 @@ import requests
 import requests.auth
 import os
 import pandas as pd
+# authorize.py
+import random
+
+
+# def get_refresh_token():
+#     url = requests.client.auth.url(duration='permanent', scopes=['read'], state=str(random.randint(0, 65000)))
+#     print("Open this url in your browser to get refresh token: {url}".format(url=url))
+#     params = self._get_params()
+#     refresh_token = self.client.auth.authorize(params["code"])
+#     return refresh_token
 
 def get_token():
 
-    client_id = 'bwrHj-qYKXjUsOFvQniLHg'
-    secret = 'tc25v_Z_6z1Yq2N5T6yikt4R0ctoIg'
+    client_id = '-57PYw9h0sLCjt5cUBbDlg'
+    secret = '-tGOb2ej_ohxCNQGTKRiDbtIEayosw'
     auth = requests.auth.HTTPBasicAuth(client_id, secret)
 
     with open('pw.txt', 'r') as f:
         pw = f.read()
 
     data = {
-        'grant_type': 'password',
+        "grant_type": "password",
+        #'grant_type': 'password',
         'username': ' nlp42069',
         'password': pw
     }
 
-    headers = { 'User-Agent': 'MyAPI/0.0.1'}
+    headers = {'User-Agent': 'MyAPI/0.0.1'}
 
     res = requests.post('https://www.reddit.com/api/v1/access_token', auth=auth,
                         data=data, headers=headers)
+    print(res.json())
+    if res != 200:
+        return False
 
     token = res.json()['access_token']
     headers['Authorization'] = f'bearer  {token}'
@@ -43,7 +57,7 @@ def get_token():
             'selftext': post['data']['selftext'],
             'upvote_ratio': post['data']['upvote_ratio'],
             'score': post['data']['score'],
-            'kind': post['kind'],
+            #'kind': post['kind'],
 
             #'ups': post['data']['ups'],
             #'downs': post['data']['downs'],
@@ -83,4 +97,5 @@ def get_token():
 
 
 if __name__ == '__main__':
+
     get_token()

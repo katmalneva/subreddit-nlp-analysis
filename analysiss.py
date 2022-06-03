@@ -45,7 +45,9 @@ def set_up():
     # df.iloc[:, 7] = df.iloc[:, 7].astype(str) + '-'
     # self_text = df.iloc[:, 7].to_string()
     # cleaned_self_text = clean_text(self_text)
-    #
+
+
+
     # df.iloc[:, 9] = df.iloc[:, 9].astype(str) + '-'
     # titles = df.iloc[:, 9].to_string()
     # cleaned_titles = clean_text(titles)
@@ -61,12 +63,15 @@ def set_up():
     #     scores = analyze_posts_with_popular_posts(common_words_titles[j][0], self_text)
     #     print(str(j) + ". " + str(common_words_titles[j][0]) + ": " + str(scores))
 
-    text_from_most_posted_day = get_posts_from_most_posted_date("05-17", df)
-    summary = text_summary(text_from_most_posted_day)
+    # text_from_most_posted_day = get_posts_from_most_posted_date("05-17", df)
+    # print(text_from_most_posted_day)
+    #
+    posts = hacky_posts_from_most_popular_date()
+    summary = text_summary(posts)
 
 
 def text_summary(scraped_data):
-    print(scraped_data)
+
     sentence_list = nltk.sent_tokenize(scraped_data)
     stopwords = nltk.corpus.stopwords.words('english')
 
@@ -95,6 +100,12 @@ def text_summary(scraped_data):
     summary = ' '.join(summary_sentences)
     print(summary)
     return summary
+
+def hacky_posts_from_most_popular_date():
+    f = open("may-17th", "r")
+    posts = f.read()
+    " ".join(posts)
+    return posts
 
 
 def get_posts_from_most_posted_date(date, df):
